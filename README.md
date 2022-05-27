@@ -1,4 +1,4 @@
-A iOS Swift Project the Key spects is - 
+A iOS Swift Project the Key specification is - 
 
 - MVVM
 - Swift 5
