@@ -12,10 +12,14 @@ import XCTest
 class MoviesListTests: XCTestCase {
     
     var sut: MovieListViewModel?
-    
+    var mockAPIServiceMovieList: MockAPIServiceMovieList!
+
     override func setUp() {
         super.setUp()
         sut = MovieListViewModel()
+        
+        mockAPIServiceMovieList = MockAPIServiceMovieList()
+        sut = MovieListViewModel(apiService: mockAPIServiceMovieList)
     }
     
     override func tearDown() {
@@ -23,16 +27,16 @@ class MoviesListTests: XCTestCase {
         super.tearDown()
     }
     
-    func test_fetch_popular_photos() {
-        
+    func testFetchMovies() {
+
         // Given A API Model
         let sut = self.sut!
         
-        // When fetch Movies Data
         let expect = XCTestExpectation(description: "callback")
-        
+        // When
         sut.fetchMovieList(params: [:]) { dataObject in
             expect.fulfill()
+            // Then
             XCTAssertNotEqual( dataObject.value?.results?.count, 0)
             for movieObject in dataObject.value?.results ?? [] {
                 XCTAssertNotNil(movieObject.id)

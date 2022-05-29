@@ -13,8 +13,8 @@ class MovieDetailsViewController: UIViewController {
     @IBOutlet var movieImageView: UIImageView!
     @IBOutlet var movieTitle: UILabel!
     @IBOutlet var movieDescription: UITextView!
-    var movieDetailModel = MovieDetailViewModel()
-    var movieId:String = ""
+    private var movieDetailModel = MovieDetailViewModel()
+    internal var movieId:String = ""
     override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -24,7 +24,7 @@ class MovieDetailsViewController: UIViewController {
     }
     
     
-    func callAPI() {
+    private func callAPI() {
         movieImageView.image = nil
         self.view.activityStartAnimating(activityColor: UIColor.red, backgroundColor: UIColor.black.withAlphaComponent(0.5))
         movieDetailModel.fetchMovieDetails(movieId: movieId) { entity in
@@ -32,13 +32,18 @@ class MovieDetailsViewController: UIViewController {
         }
         movieDetailModel.moviesDetailModel.bind { [weak self] _ in
             DispatchQueue.main.async {
-                self?.view.activityStopAnimating()
                 self?.setUpData()
+            }
+        }
+        
+        movieDetailModel.isToShowLoader.bind { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.view.activityStopAnimating()
             }
         }
     }
     
-    func setUpData() {
+    private func setUpData() {
         guard let validObject = movieDetailModel.moviesDetailModel.value else {
             return
         }

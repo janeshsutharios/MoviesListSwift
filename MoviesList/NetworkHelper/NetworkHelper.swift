@@ -14,15 +14,17 @@ struct NetworkHelperConstants {
     static let baseURL = "https://api.themoviedb.org/"
     static let imgBaseURL = "https://image.tmdb.org/t/p/w500/"
     
-    
     static let movieListURL = baseURL + "4/list/1" + "?api_key=\(apiKey)"
     static let movieDetailURL = baseURL + "3/movie/"
     
     
 }
 
+protocol APIServiceProtocol {
+    func startNetworkTask(urlStr:String, params:[String:Any], resultHandler: @escaping (Result<Data?, Error>) -> Void)
+}
 
-class NetworkHelper {
+class NetworkHelper:APIServiceProtocol {
     static let shared = NetworkHelper()
     
     func startNetworkTask(urlStr:String, params:[String:Any], resultHandler: @escaping (Result<Data?, Error>) -> Void)  {
@@ -48,7 +50,6 @@ class NetworkHelper {
 }
 
 protocol MovieErrorProtocol: LocalizedError {
-    
     var title: String? { get }
     var code: Int { get }
 }

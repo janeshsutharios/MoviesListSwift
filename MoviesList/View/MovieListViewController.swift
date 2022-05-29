@@ -11,7 +11,7 @@ import Kingfisher
 class MovieListViewController: UIViewController {
     
     @IBOutlet var moviesTableView: UITableView!
-    var movieViewModel = MovieListViewModel()
+    private var movieViewModel = MovieListViewModel()
     
     
     override func viewDidLoad() {
@@ -23,22 +23,26 @@ class MovieListViewController: UIViewController {
         callAPI()
     }
     
-    func setupUI() {
+    private func setupUI() {
         moviesTableView.rowHeight = UITableView.automaticDimension
         moviesTableView.estimatedRowHeight = 100
         
     }
     
-    func callAPI() {
+    private func callAPI() {
         self.view.activityStartAnimating(activityColor: UIColor.red, backgroundColor: UIColor.black.withAlphaComponent(0.5))
-
+        
         movieViewModel.fetchMovieList(params: [:]) { onComplete in
             
         }
         movieViewModel.moviesListModel.bind { [weak self] newsModel in
             DispatchQueue.main.async {
-                self?.view.activityStopAnimating()
                 self?.moviesTableView.reloadData()
+            }
+        }
+        movieViewModel.isToShowLoader.bind { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.view.activityStopAnimating()
             }
         }
     }
@@ -48,7 +52,7 @@ class MovieListViewController: UIViewController {
 
 extension MovieListViewController:UITableViewDataSource {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {        
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if movieViewModel.moviesListModel.value == nil {
             return 0
         }
@@ -69,7 +73,7 @@ extension MovieListViewController:UITableViewDataSource {
             cell.movieImgView.kf.setImage(with: fullURL)
         }
         cell.movieImgView.kf.indicatorType = .activity
-
+        
         return cell
     }
     

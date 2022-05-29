@@ -12,17 +12,21 @@ class MovieDetailTests: XCTestCase {
     
     var sut: MovieDetailViewModel?
     
+    var mockAPIServiceMovieDetail: MockAPIServiceMovieDetail!
+
     override func setUp() {
         super.setUp()
         sut = MovieDetailViewModel()
+        
+        mockAPIServiceMovieDetail = MockAPIServiceMovieDetail()
+        sut = MovieDetailViewModel(apiService: mockAPIServiceMovieDetail)
     }
-    
     override func tearDown() {
         sut = nil
         super.tearDown()
     }
     
-    func test_fetch_popular_photos() {
+    func testMovieDetail() {
         
         // Given A API Model
         let sut = self.sut!
@@ -33,7 +37,6 @@ class MovieDetailTests: XCTestCase {
         sut.fetchMovieDetails(movieId: "1223") { dataObject in
             expect.fulfill()
             XCTAssertNotEqual( dataObject.value?.overview, "")
-            
         }
         
         wait(for: [expect], timeout: 1)

@@ -8,23 +8,22 @@ import UIKit
 
 class MovieDetailViewModel {
     
-    let moviesDetailModel: MovieObserver<MovieDetailModel?> = MovieObserver(nil)  //no data  initially
+    internal let moviesDetailModel: MovieObserver<MovieDetailModel?> = MovieObserver(nil)  //no data  initially
+    private let apiService: APIServiceProtocol
+    internal var isToShowLoader: MovieObserver<Bool> = MovieObserver(false)  //no data  initially
+
+    init(apiService: APIServiceProtocol = NetworkHelper()) {
+        self.apiService = apiService
+    }
     
-    func fetchMovieDetails(movieId:String, complete: @escaping (MovieObserver<MovieDetailModel?>)->() ) {
-        
-#if UNITTEST
-        let jsonData = SwiftUtility.loadJson(filename: "MovieDetail")
-        let decoderObject = JSONDecoder()
-        do {
-            self.moviesDetailModel.value = try decoderObject.decode(MovieDetailModel.self, from: jsonData)
-            complete(self.moviesDetailModel)
-        } catch {}
-#else
-        
+    internal func fetchMovieDetails(movieId:String, complete: @escaping (MovieObserver<MovieDetailModel?>)->() ) {
+        isToShowLoader.value = true
+
         let finalURL = NetworkHelperConstants.movieDetailURL + movieId + "?api_key=\(NetworkHelperConstants.apiKey)"
         
-        NetworkHelper.shared.startNetworkTask(urlStr:finalURL, params: [:]) {  result in
-            
+        apiService.startNetworkTask(urlStr:finalURL, params: [:]) {  result in
+            self.isToShowLoader.value = false
+
             switch result {
             case .success(let dataObject):
                 do {
@@ -38,9 +37,9 @@ class MovieDetailViewModel {
             case .failure(let error):
                 print(error.localizedDescription)
             }
+            complete(self.moviesDetailModel)
             
         }
-#endif
     }
 
 

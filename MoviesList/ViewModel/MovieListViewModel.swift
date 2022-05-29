@@ -8,19 +8,19 @@
 import UIKit
 class MovieListViewModel {
     
-    let moviesListModel: MovieObserver<MovieListModel?> = MovieObserver(nil)  //no data  initially
+    internal let moviesListModel: MovieObserver<MovieListModel?> = MovieObserver(nil)  //no data  initially
+    private let apiService: APIServiceProtocol
+    internal var isToShowLoader: MovieObserver<Bool> = MovieObserver(false)  //no data  initially
+
+    init(apiService: APIServiceProtocol = NetworkHelper()) {
+        self.apiService = apiService
+    }
     
-    func fetchMovieList(params:[String:Any], complete: @escaping (MovieObserver<MovieListModel?>)->() ) {
+    internal func fetchMovieList(params:[String:Any], complete: @escaping (MovieObserver<MovieListModel?>)->() ) {
+        isToShowLoader.value = true
         
-#if UNITTEST
-        let jsonData = SwiftUtility.loadJson(filename: "MovieList")
-        let decoderObject = JSONDecoder()
-        do {
-            self.moviesListModel.value = try decoderObject.decode(MovieListModel.self, from: jsonData)
-            complete(self.moviesListModel)
-        } catch {}
-#else
-        NetworkHelper.shared.startNetworkTask(urlStr: NetworkHelperConstants.movieListURL, params: [:]) { result in
+        self.apiService.startNetworkTask(urlStr: NetworkHelperConstants.movieListURL, params: [:]) { result in
+            self.isToShowLoader.value = false
             switch result {
                 
             case .success(let dataObject):
@@ -37,8 +37,6 @@ class MovieListViewModel {
             }
             complete(self.moviesListModel)
         }
-#endif
-        
         
     }
 }
